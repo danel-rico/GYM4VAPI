@@ -5,6 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Monitor;
 use App\Repository\MonitorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -35,6 +37,8 @@ final class MonitorController extends AbstractController
         $monitor = new Monitor();
         $monitor->setName($data['name']);
         $monitor->setEmail($data['email']);
+        $monitor->setPhone($data['phone']);
+        $monitor->setPhoto($data['photo']);
         
         $this->entityManager->persist($monitor);
         $this->entityManager->flush();
@@ -53,6 +57,8 @@ final class MonitorController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $monitor->setName($data['name'] ?? $monitor->getName());
         $monitor->setEmail($data['email'] ?? $monitor->getEmail());
+        $monitor->setPhone($data['phone'] ?? $monitor->getPhone());
+        $monitor->setPhoto($data['photo'] ?? $monitor->getPhoto());
         
         $this->entityManager->flush();
         
