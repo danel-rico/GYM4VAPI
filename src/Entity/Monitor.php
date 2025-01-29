@@ -19,10 +19,10 @@ class Monitor
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $phone = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
     private ?string $photo = null;
 
     public function getId(): ?int
@@ -78,7 +78,7 @@ class Monitor
         return $this->photo;
     }
 
-    public function setPhoto(?string $photo): static
+    public function setPhoto(string $photo): static
     {
         $this->photo = $photo;
 

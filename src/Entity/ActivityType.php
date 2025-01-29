@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ActivityTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ActivityTypeRepository::class)]
@@ -19,12 +21,23 @@ class ActivityType
     #[ORM\Column]
     private ?int $number_monitors = null;
 
+    /**
+     * @var Collection<int, Activity>
+     */
+    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'activity_type')]
+    private Collection $idActividad;
+
+    public function __construct()
+    {
+        $this->idActividad = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(string $id): static
+    public function setId(int $id): static
     {
         $this->id = $id;
 
@@ -51,6 +64,36 @@ class ActivityType
     public function setNumberMonitors(int $number_monitors): static
     {
         $this->number_monitors = $number_monitors;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Activity>
+     */
+    public function getIdActividad(): Collection
+    {
+        return $this->idActividad;
+    }
+
+    public function addIdActividad(Activity $idActividad): static
+    {
+        if (!$this->idActividad->contains($idActividad)) {
+            $this->idActividad->add($idActividad);
+            $idActividad->setActivityType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdActividad(Activity $idActividad): static
+    {
+        if ($this->idActividad->removeElement($idActividad)) {
+            // set the owning side to null (unless already changed)
+            if ($idActividad->getActivityType() === $this) {
+                $idActividad->setActivityType(null);
+            }
+        }
 
         return $this;
     }
