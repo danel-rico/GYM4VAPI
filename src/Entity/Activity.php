@@ -1,15 +1,13 @@
 <?php
-
 namespace App\Entity;
 
-use App\Repository\ActivityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ActivityRepository::class)]
-class Activity
+#[ORM\Entity]
+class Activity implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,14 +20,12 @@ class Activity
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_end = null;
 
-    #[ORM\ManyToOne(inversedBy: 'idActividad')]
+    #[ORM\ManyToOne(targetEntity: ActivityType::class, inversedBy: 'activities')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?ActivityType $activity_type = null;
+    private ?ActivityType $activityType = null;
 
-    /**
-     * @var Collection<int, Monitor>
-     */
     #[ORM\ManyToMany(targetEntity: Monitor::class)]
+    #[ORM\JoinTable(name: 'activity_monitor')]
     private Collection $monitors;
 
     public function __construct()
@@ -42,13 +38,6 @@ class Activity
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     public function getDateStart(): ?\DateTimeInterface
     {
         return $this->date_start;
@@ -57,7 +46,6 @@ class Activity
     public function setDateStart(\DateTimeInterface $date_start): static
     {
         $this->date_start = $date_start;
-
         return $this;
     }
 
@@ -69,25 +57,20 @@ class Activity
     public function setDateEnd(\DateTimeInterface $date_end): static
     {
         $this->date_end = $date_end;
-
         return $this;
     }
 
     public function getActivityType(): ?ActivityType
     {
-        return $this->activity_type;
+        return $this->activityType;
     }
 
-    public function setActivityType(?ActivityType $activity_type): static
+    public function setActivityType(?ActivityType $activityType): static
     {
-        $this->activity_type = $activity_type;
-
+        $this->activityType = $activityType;
         return $this;
     }
 
-    /**
-     * @return Collection<int, Monitor>
-     */
     public function getMonitors(): Collection
     {
         return $this->monitors;
@@ -98,14 +81,22 @@ class Activity
         if (!$this->monitors->contains($monitor)) {
             $this->monitors->add($monitor);
         }
-
         return $this;
     }
 
     public function removeMonitor(Monitor $monitor): static
     {
         $this->monitors->removeElement($monitor);
-
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'date_start' => $this->date_start->format('Y-m-d H:i:s'),
+            'date_end' => $this->date_end->format('Y-m-d H:i:s'),
+            'activity_type' => $this->activityType ? ['id' => $this->activityType->getId(), 'name' => $this->activityType->getName()] : null
+        ];
     }
 }

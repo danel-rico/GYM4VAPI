@@ -1,14 +1,12 @@
 <?php
-
 namespace App\Entity;
 
-use App\Repository\ActivityTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ActivityTypeRepository::class)]
-class ActivityType
+#[ORM\Entity]
+class ActivityType implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,15 +19,12 @@ class ActivityType
     #[ORM\Column]
     private ?int $number_monitors = null;
 
-    /**
-     * @var Collection<int, Activity>
-     */
-    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'activity_type')]
-    private Collection $idActividad;
+    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'activityType')]
+    private Collection $activities;
 
     public function __construct()
     {
-        $this->idActividad = new ArrayCollection();
+        $this->activities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -37,23 +32,9 @@ class ActivityType
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
-    }
-
-    public function setName(string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     public function getNumberMonitors(): ?int
@@ -61,40 +42,17 @@ class ActivityType
         return $this->number_monitors;
     }
 
-    public function setNumberMonitors(int $number_monitors): static
+    public function getActivities(): Collection
     {
-        $this->number_monitors = $number_monitors;
-
-        return $this;
+        return $this->activities;
     }
 
-    /**
-     * @return Collection<int, Activity>
-     */
-    public function getIdActividad(): Collection
+    public function jsonSerialize(): array
     {
-        return $this->idActividad;
-    }
-
-    public function addIdActividad(Activity $idActividad): static
-    {
-        if (!$this->idActividad->contains($idActividad)) {
-            $this->idActividad->add($idActividad);
-            $idActividad->setActivityType($this);
-        }
-
-        return $this;
-    }
-
-    public function removeIdActividad(Activity $idActividad): static
-    {
-        if ($this->idActividad->removeElement($idActividad)) {
-            // set the owning side to null (unless already changed)
-            if ($idActividad->getActivityType() === $this) {
-                $idActividad->setActivityType(null);
-            }
-        }
-
-        return $this;
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'number_monitors' => $this->number_monitors,
+        ];
     }
 }
